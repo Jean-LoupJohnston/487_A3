@@ -47,8 +47,14 @@ package helloworld;
 
 
 import com.google.gson.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Scanner;
 import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -61,9 +67,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import pkg487_a1_p1.Book;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.transform.*;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import pkg487_a1_p1.*;
 import thelibrarysystem.TheLibrarySystem;
-
 
 /**
  *
@@ -76,7 +86,7 @@ public class HelloWorldResource {
     
     TheLibrarySystem system; 
 
-    public HelloWorldResource()throws SQLException, ClassNotFoundException {
+    public HelloWorldResource()throws SQLException, ClassNotFoundException, FileNotFoundException {
         this.system = TheLibrarySystem.getInstance();
     }
 
@@ -121,6 +131,71 @@ public class HelloWorldResource {
         
     }
     
+     @GET
+    @Path("/listbooks/xml")
+    @Produces("application/xml")
+    public String listBookXml() {
+        try{
+            List<Book> books = system.showBooks();
+            Books bookList = new Books();
+            bookList.setBooks(books);
+
+            
+            JAXBContext contextObj = JAXBContext.newInstance(Books.class);
+            Marshaller marshallerObj = contextObj.createMarshaller();  
+            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);  
+            StringWriter sw = new StringWriter();
+            marshallerObj.marshal(bookList,sw);
+
+            return sw.toString();
+        }
+        catch(Exception e)
+        {
+            return e.toString();
+        }
+        
+    }
+    
+   @GET
+    @Path("/listbooks/html")
+    @Produces("text/html")
+    public String listBookhtml() {
+        try{
+            List<Book> books = system.showBooks();
+            Books bookList = new Books();
+            bookList.setBooks(books);
+
+            
+            JAXBContext contextObj = JAXBContext.newInstance(Books.class);
+            Marshaller marshallerObj = contextObj.createMarshaller();  
+            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);  
+            StringWriter sw = new StringWriter();
+            marshallerObj.marshal(bookList,sw);
+            //transform to html with xslt file
+            String xml = sw.toString();
+            String html = "";
+                TransformerFactory tFactory = TransformerFactory.newInstance();
+                Source xslDoc = new StreamSource("C:\\Users\\Jean-Loup\\Desktop\\487\\ServiceSystem\\a.xsl");
+                Source xmlDoc = new StreamSource(new StringReader(xml));
+                Transformer trasform = tFactory.newTransformer(xslDoc);
+                StreamResult result = new StreamResult (new FileOutputStream("C:\\Users\\Jean-Loup\\Desktop\\487\\ServiceSystem\\output.txt"));
+                trasform.transform(xmlDoc,result );
+                Scanner scanner = new Scanner( new File("C:\\Users\\Jean-Loup\\Desktop\\487\\ServiceSystem\\output.txt") );
+                String text = scanner.useDelimiter("\\A").next();
+                scanner.close();
+            return text;
+        }
+        catch(Exception e)
+        {
+            return e.toString();
+        }
+        
+    }
+    
+    
+    
+    
+    
     @GET
     @Path("/displaybook")
     @Produces("text/plain")
@@ -135,7 +210,7 @@ public class HelloWorldResource {
     
      @GET
     @Path("/displaybook/json")
-    @Produces("text/plain")
+    @Produces("application/json")
     public String displayBookJson(@QueryParam("id") int id) {
         
         GsonBuilder builder = new GsonBuilder(); 
@@ -150,6 +225,31 @@ public class HelloWorldResource {
         return gson.toJson("not found");
     }
     
+    @GET
+    @Path("/displaybook/xml")
+    @Produces("application/xml")
+    public String displayBookXml(@QueryParam("id") int id) {
+        
+        if(system.getBookById(id)!= null)
+        {
+            Book b = system.getBookById(id);
+            try{
+            JAXBContext contextObj = JAXBContext.newInstance(Book.class);
+            Marshaller marshallerObj = contextObj.createMarshaller();  
+            marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);  
+            StringWriter sw = new StringWriter();
+            marshallerObj.marshal(b,sw);
+
+            return sw.toString();
+            }
+            catch(Exception e)
+            {
+                return "error while searcng for book";
+            }
+        }
+        return "Not found";
+    }
+    
     @POST
     @Path("/addbook")
     @Produces("text/plain")
@@ -160,6 +260,17 @@ public class HelloWorldResource {
         
         system.addBook(t, d, i, a, p);
         return "Book added";
+    }
+    
+    @POST
+    @Path("/addbook/json")
+    @Produces("text/plain")
+    @Consumes("application/json")
+    public String addbookjson(String jsonBody) {
+        Gson gson = new Gson();
+        Book book = gson.fromJson(jsonBody, Book.class);
+        system.addBook(book);
+        return "book added";
     }
     
     @PUT

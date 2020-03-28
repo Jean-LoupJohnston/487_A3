@@ -1,0 +1,59 @@
+
+<html>
+    <head>
+        <title>Books Store Application</title>
+    </head>
+    <body>
+	<script src="myscripts.js"></script>
+    <h1> Book Management </h1>
+	<br>
+	<button onclick=getBooks()> Display all books </button>
+	<br><br>
+	<button onclick=getBookById()> Display book by id </button>
+	<input type="text" placeholder="Enter book id" id=2></input>
+	<br><br>
+	<button onclick=addBook()> Add book </button>
+	<table>
+		<tr>
+		<th>title</th>
+		<th>description</th>
+		<th>isbn</th>
+		<th>author</th>
+		<th>publisher</th>
+		</tr>
+		<tr>
+		<td><input type="text" placeholder="Title" id="t"></input></td>
+		<td><input type="text" placeholder="Description" id="d"></input></td>
+		<td><input type="text" placeholder="Isbn" id="i"></input></td>
+		<td><input type="text" placeholder="Author" id="a"></input></td>
+		<td><input type="text" placeholder="Publisher" id="p"></input></td>
+		</tr>
+	</table>
+	<br><br>
+	<button onclick=updateBook()> Update book </button>
+	<table>
+		<tr>
+		<th>id</th>
+		<th>attribute to update</th>
+		<th>new walue</th>
+		</tr>
+		<tr>
+		<td><input type="text" placeholder="Id" id="iupdate"></input></td>
+		<td><select id="attribute">
+			  <option value="1">Title</option>
+			  <option value="4">Description</option>
+			  <option value="3">Author</option>
+			  <option value="2">Isbn</option>
+			  <option value="5">Publisher</option>
+			</select></td>
+		<td><input type="text" placeholder="New value" id="newval"></input></td>
+		</tr>
+	</table>
+	<br><br>
+	<button onclick=deleteBook()> Delete book </button>
+	<input type="text" placeholder="Enter book id" id=3></input>
+	<br><br>
+	<div id=1></div>
+</body>
+</html>
+

@@ -1,0 +1,8 @@
+{
+"listBooks":"http://localhost:8080/ServiceSystem/resources/library/listbooks/html",
+"getBook":"http://localhost:8080/ServiceSystem/resources/library/displaybook?id=",
+"addBook":"http://localhost:8080/ServiceSystem/resources/library/addbook",
+"updateBook","http://localhost:8080/ServiceSystem/resources/library/updatebook",
+"deleteBook","http://localhost:8080/ServiceSystem/resources/library/deletebook/"
+
+}
